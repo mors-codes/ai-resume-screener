@@ -1,9 +1,9 @@
 import { useState } from 'react'
 
-const recommendationStyles = {
-  strong: 'bg-emerald-950 border-emerald-700 text-emerald-300',
-  maybe: 'bg-amber-950 border-amber-700 text-amber-300',
-  weak: 'bg-red-950 border-red-700 text-red-300',
+const verdictStyles = {
+  strong: { bar: 'bg-[#16C79A]', text: 'text-[#16C79A]', label: 'Strong fit' },
+  maybe: { bar: 'bg-[#F2A340]', text: 'text-[#F2A340]', label: 'Worth a look' },
+  weak: { bar: 'bg-[#E0556B]', text: 'text-[#E0556B]', label: 'Weak fit' },
 }
 
 function App() {
@@ -43,34 +43,41 @@ function App() {
     }
   }
 
+  const verdict = result ? verdictStyles[result.recommendation] || verdictStyles.maybe : null
+
   return (
-    <div className="min-h-screen bg-slate-900 text-white px-6 py-10">
+    <div className="min-h-screen bg-[#0B0E14] text-white px-6 py-12">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">AI Resume Screener</h1>
+        <div className="mb-10">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#8B93A7] mb-2">
+            Candidate screening
+          </p>
+          <h1 className="text-3xl font-semibold tracking-tight">AI Resume Screener</h1>
+        </div>
 
         <div className="grid md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium mb-2 text-slate-300">
+            <label className="block font-mono text-xs uppercase tracking-wider mb-2 text-[#8B93A7]">
               Job Description
             </label>
             <textarea
               value={jobDescription}
               onChange={(e) => setJobDescription(e.target.value)}
               rows={12}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full bg-[#11151E] border border-[#1F2530] rounded-md p-4 text-sm leading-relaxed text-slate-200 placeholder:text-[#5C6478] focus:outline-none focus:border-[#F2A340]/60 transition-colors"
               placeholder="Paste the job description here..."
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2 text-slate-300">
+            <label className="block font-mono text-xs uppercase tracking-wider mb-2 text-[#8B93A7]">
               Candidate Resume
             </label>
             <textarea
               value={resume}
               onChange={(e) => setResume(e.target.value)}
               rows={12}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full bg-[#11151E] border border-[#1F2530] rounded-md p-4 text-sm leading-relaxed text-slate-200 placeholder:text-[#5C6478] focus:outline-none focus:border-[#F2A340]/60 transition-colors"
               placeholder="Paste the candidate's resume here..."
             />
           </div>
@@ -79,75 +86,95 @@ function App() {
         <button
           onClick={handleScreen}
           disabled={loading || !jobDescription || !resume}
-          className="mt-6 bg-amber-500 hover:bg-amber-400 disabled:bg-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed text-slate-900 font-semibold px-6 py-3 rounded-lg transition-colors"
+          className="mt-6 bg-[#F2A340] hover:bg-[#F5B461] disabled:bg-[#1F2530] disabled:text-[#5C6478] disabled:cursor-not-allowed text-[#0B0E14] font-medium px-6 py-3 rounded-md transition-colors"
         >
           {loading ? 'Screening...' : 'Screen Candidate'}
         </button>
 
         {error && (
-          <div className="mt-6 bg-red-950 border border-red-800 text-red-300 rounded-lg p-4 text-sm">
+          <div className="mt-6 border-l-2 border-[#E0556B] bg-[#1A1014] text-[#E0556B] rounded-r-md p-4 text-sm">
             {error}
           </div>
         )}
 
         {result && (
-          <div className="mt-8 space-y-6">
-            {/* Score + recommendation */}
-            <div className="flex items-center gap-6 bg-slate-800 border border-slate-700 rounded-lg p-6">
-              <div className="text-5xl font-bold text-amber-400">{result.score}</div>
-              <div>
-                <span
-                  className={`inline-block px-3 py-1 rounded-full border text-sm font-medium uppercase tracking-wide ${
-                    recommendationStyles[result.recommendation] || 'bg-slate-700 border-slate-600 text-slate-300'
-                  }`}
-                >
-                  {result.recommendation}
+          <div className="mt-10 space-y-6">
+            {/* Verdict strip */}
+            <div className={`flex border-l-4 ${verdict.bar} bg-[#11151E] rounded-r-md overflow-hidden`}>
+              <div className="px-6 py-6">
+                <div className="font-mono text-6xl font-light leading-none text-white">
+                  {result.score}
+                </div>
+                <div className="font-mono text-[10px] text-[#5C6478] mt-1 tracking-wider">
+                  / 100
+                </div>
+              </div>
+              <div className="border-l border-[#1F2530] px-6 py-6 flex-1">
+                <span className={`font-mono text-xs uppercase tracking-wider ${verdict.text}`}>
+                  {verdict.label}
                 </span>
-                <p className="mt-2 text-slate-300 text-sm">{result.summary}</p>
+                <p className="mt-2 text-sm text-slate-300 leading-relaxed">{result.summary}</p>
               </div>
             </div>
 
-            {/* Matches + gaps side by side */}
+            {/* Matches + gaps */}
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-slate-800 border border-slate-700 rounded-lg p-5">
-                <h3 className="text-sm font-semibold text-emerald-400 mb-3 uppercase tracking-wide">
-                  Matches
+              <div className="bg-[#11151E] border border-[#1F2530] rounded-md p-5">
+                <h3 className="font-mono text-xs text-[#16C79A] mb-4 uppercase tracking-wider">
+                  Matches — {result.matches.length}
                 </h3>
-                <ul className="space-y-2 text-sm text-slate-300">
-                  {result.matches.map((item, i) => (
-                    <li key={i} className="flex gap-2">
-                      <span className="text-emerald-400">✓</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
+                {result.matches.length > 0 ? (
+                  <ul className="space-y-3 text-sm text-slate-300 leading-relaxed">
+                    {result.matches.map((item, i) => (
+                      <li key={i} className="flex gap-2.5">
+                        <span className="text-[#16C79A] font-mono text-xs mt-0.5">＋</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-[#5C6478]">No matching requirements found.</p>
+                )}
               </div>
 
-              <div className="bg-slate-800 border border-slate-700 rounded-lg p-5">
-                <h3 className="text-sm font-semibold text-red-400 mb-3 uppercase tracking-wide">
-                  Gaps
+              <div className="bg-[#11151E] border border-[#1F2530] rounded-md p-5">
+                <h3 className="font-mono text-xs text-[#E0556B] mb-4 uppercase tracking-wider">
+                  Gaps — {result.gaps.length}
                 </h3>
-                <ul className="space-y-2 text-sm text-slate-300">
-                  {result.gaps.map((item, i) => (
-                    <li key={i} className="flex gap-2">
-                      <span className="text-red-400">✕</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
+                {result.gaps.length > 0 ? (
+                  <ul className="space-y-3 text-sm text-slate-300 leading-relaxed">
+                    {result.gaps.map((item, i) => (
+                      <li key={i} className="flex gap-2.5">
+                        <span className="text-[#E0556B] font-mono text-xs mt-0.5">－</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-[#5C6478]">No gaps identified.</p>
+                )}
               </div>
             </div>
 
             {/* Interview questions */}
-            <div className="bg-slate-800 border border-slate-700 rounded-lg p-5">
-              <h3 className="text-sm font-semibold text-amber-400 mb-3 uppercase tracking-wide">
-                Suggested Interview Questions
+            <div className="bg-[#11151E] border border-[#1F2530] rounded-md p-5">
+              <h3 className="font-mono text-xs text-[#F2A340] mb-4 uppercase tracking-wider">
+                Suggested interview questions
               </h3>
-              <ol className="space-y-2 text-sm text-slate-300 list-decimal list-inside">
-                {result.interviewQuestions.map((q, i) => (
-                  <li key={i}>{q}</li>
-                ))}
-              </ol>
+              {result.interviewQuestions.length > 0 ? (
+                <ol className="space-y-3 text-sm text-slate-300 leading-relaxed">
+                  {result.interviewQuestions.map((q, i) => (
+                    <li key={i} className="flex gap-3">
+                      <span className="font-mono text-[#5C6478] text-xs mt-0.5">{String(i + 1).padStart(2, '0')}</span>
+                      <span>{q}</span>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className="text-sm text-[#5C6478]">
+                  Not enough information in the resume to suggest interview questions.
+                </p>
+              )}
             </div>
           </div>
         )}
